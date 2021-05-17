@@ -1,53 +1,54 @@
 package net.pgfmc.teams;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import net.pgfmc.voting.Vote;
 
 public class TeamObj {
 	
-	String name = "New Team";
+	String name = "Team123";
+	UUID leader;
 	List<UUID> members;
-	List<UUID> allies = null; // Defaults to null if no allies
-	static List<TeamObj> instances = new ArrayList<TeamObj>();
-	UUID teamID;
-	Vote currentVote = null;
-	UUID leader = null;
+	List<TeamObj> allies = null; // Defaults to null if no allies
 	
-	// ------------------------------------------------------------------------------------ constructors
-	
-	public TeamObj(String name, List<UUID> members, List<UUID> allies, UUID ID, UUID leader, UUID vote)
+	public TeamObj(String name, UUID leader, List<UUID> members, List<TeamObj> allies)
 	{
 		this.name = name;
+		this.leader = leader;
 		this.members = members;
 		this.allies = allies;
-		teamID = ID;
+	}
+	
+	
+	
+	public TeamObj(String name, UUID leader, List<UUID> members)
+	{
+		this.name = name;
 		this.leader = leader;
-		currentVote = Vote.findInVote(vote);
-		instances.add(this);
-	}
-	
-	public TeamObj(List<UUID> members) {
 		this.members = members;
-		teamID = UUID.randomUUID();
-		
-		
-		
-		instances.add(this);
 	}
 	
-	// ------------------------------------------------------------------------------------ getters and setters
+	
+	
+	
+	
+	
+	
 	
 	public List<UUID> getMembers()
 	{
 		return members;
 	}
 	
-	public List<UUID> getAllies()
+	
+	public Player getLeader()
+	{
+		return Bukkit.getPlayer(leader);
+	}
+	
+	public List<TeamObj> getAllies()
 	{
 		return allies;
 	}
@@ -57,8 +58,12 @@ public class TeamObj {
 		return name;
 	}
 	
-	public void setName(String string) {
-		name = string;
+	public boolean kickMember(Player p)
+	{
+		if (p.getUniqueId().equals(leader)) { return false; } // You cannot remove the owner!
+		
+		members.remove(p.getUniqueId());
+		return true;
 	}
 	
 	public boolean addMember(Player p)
@@ -69,49 +74,14 @@ public class TeamObj {
 		return true;
 	}
 	
-	public Vote getVote() {
-		return currentVote;
-	}
 	
-	public void setVote(Vote vote) {
-		currentVote = vote;
-	}
-	
-	public UUID getID() {
-		return teamID;
-	}
-	
-	// ------------------------------------------------------------------------------------ Renaming functions
-	
-	public void renameBegin(PlayerData p) { // initializes naming mode for player p.getPlayer.
-		Player player = p.getPlayer().getPlayer();
-		player.sendMessage("You can now change your team's name!");
-		player.sendMessage("For the next 4 minutes, you can change your ");
-		player.sendMessage("team's name by typing into the chat box!");
-		p.setNamingTrue();
-	}
-	
-	// ------------------------------------------------------------------------------------ instances manager
-	
-	public static TeamObj findPlayer(Player p) { // searches for a given Player p, and returns the team the player is in
-		for (TeamObj team : instances) {
-			if (team.getMembers().contains(p.getUniqueId())) {
-				return team;
-			}
-		}
-		return null;
-	}
-	
-	public static TeamObj findID(UUID ID) { // searches for the team with the given ID
-		for (TeamObj team : instances) {
-			if (team.getID() == ID) {
-				return team;
-			}
-		}
-		return null;
-	}
-	
-	public static List<TeamObj> getTeams() { // returns all teams
-		return instances;
+	public boolean disband(Player sender)
+	{
+		if (!sender.getUniqueId().equals(leader)) { return false; } // You cannot disband a team if you aren't the owner!
+		// TODO delete from save file
+		
+		// return true if save works.
+		
+		return false; // Something bad happened and it didn't disband properly
 	}
 }

@@ -35,10 +35,12 @@ public class PlayerEvents implements Listener {
 	
 	@EventHandler
 	public void playerMessageEvent(AsyncPlayerChatEvent e) { // sets the name of the team if they are in naming mode
-		if (PlayerData.findPlayerData(e.getPlayer()).getNaming()) {
-			PlayerData playerData = PlayerData.findPlayerData(e.getPlayer());
+		
+		Player p = e.getPlayer();
+		if (PlayerData.findPlayerData(p).getNaming()) {
+			PlayerData playerData = PlayerData.findPlayerData(p);
 			playerData.getTeam().setName(e.getMessage());
-			e.getPlayer().sendMessage(e.getMessage() + " is now the name of your team!");
+			p.sendMessage(e.getMessage() + " is now the name of your team!");
 			playerData.setNamingFalse();
 			e.setCancelled(true);
 		}
